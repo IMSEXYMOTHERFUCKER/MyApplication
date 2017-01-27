@@ -4,30 +4,40 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.PopupWindow;
-import android.widget.TextView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.GroundOverlayOptions;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.mapbox.mapboxsdk.annotations.IconFactory;
+import com.mapbox.mapboxsdk.annotations.Marker;
+import com.mapbox.mapboxsdk.annotations.MarkerOptions;
+import com.mapbox.mapboxsdk.camera.CameraPosition;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
+import com.mapbox.mapboxsdk.constants.Style;
+import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.geometry.LatLngBounds;
+import com.mapbox.mapboxsdk.maps.MapView;
+import com.mapbox.mapboxsdk.maps.MapboxMap;
+import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
+import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+import com.mapbox.mapboxsdk.maps.SupportMapFragment;
+import com.mapbox.mapboxsdk.offline.OfflineManager;
+import com.mapbox.mapboxsdk.offline.OfflineRegion;
+import com.mapbox.mapboxsdk.offline.OfflineRegionError;
+import com.mapbox.mapboxsdk.offline.OfflineRegionStatus;
+import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition;
+
+import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.Vector;
+
+import static com.mapbox.mapboxsdk.constants.MapboxConstants.TAG;
 
 
 /**
@@ -38,7 +48,7 @@ import java.util.Vector;
  * Use the {@link F_map#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class F_map extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleMap.OnCameraMoveListener{
+public class F_map extends Fragment implements OnMapReadyCallback, MapboxMap.OnMarkerClickListener, MapboxMap.OnCameraChangeListener{
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
@@ -111,16 +121,13 @@ public class F_map extends Fragment implements OnMapReadyCallback, GoogleMap.OnM
 
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(MapboxMap googleMap) {
+        offline_downloader();
         map=googleMap;
-        LatLng Ulaanbaatar= new LatLng(47.921230, 106.918556);
-        LatLngBounds UB_box=new LatLngBounds(new LatLng(47.7540,106.5624),new LatLng(48.1487,107.3945));
-        map.setLatLngBoundsForCameraTarget(UB_box);
         //TODO Offline Map here
         //GroundOverlayOptions UB=new GroundOverlayOptions().image().position();
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(Ulaanbaatar,15.0f));
         map.setOnMarkerClickListener(this);
-        map.setOnCameraMoveListener(this);
+        map.setOnCameraChangeListener(this);
         stop_drawer();
     }
 
@@ -132,7 +139,7 @@ public class F_map extends Fragment implements OnMapReadyCallback, GoogleMap.OnM
                 visibleMarkers.get(((MainActivity)getActivity()).Astop).remove();
                 visibleMarkers.remove(((MainActivity)getActivity()).Astop); //Remove from Display and Hashmap
             }
-            marker.setIcon(BitmapDescriptorFactory.fromResource(R.mipmap.map_a));
+            marker.setIcon(IconFactory.getInstance(getActivity()).fromResource(R.mipmap.map_a));
             ((MainActivity)getActivity()).Astop=Integer.valueOf(marker.getSnippet());
             isA=false;
         } else {
@@ -140,7 +147,7 @@ public class F_map extends Fragment implements OnMapReadyCallback, GoogleMap.OnM
                 visibleMarkers.get(((MainActivity)getActivity()).Bstop).remove();
                 visibleMarkers.remove(((MainActivity)getActivity()).Bstop); //Remove from Display and Hashmap
             }
-            marker.setIcon(BitmapDescriptorFactory.fromResource(R.mipmap.map_b));
+            marker.setIcon(IconFactory.getInstance(getActivity()).fromResource(R.mipmap.map_b));
             ((MainActivity)getActivity()).Bstop=Integer.valueOf(marker.getSnippet());
             isA=true;
         }
@@ -149,7 +156,7 @@ public class F_map extends Fragment implements OnMapReadyCallback, GoogleMap.OnM
     }
 
     @Override
-    public void onCameraMove() {
+    public void onCameraChange(CameraPosition position) {
         stop_drawer();
     }
 
@@ -167,7 +174,7 @@ public class F_map extends Fragment implements OnMapReadyCallback, GoogleMap.OnM
         void onFragmentInteraction(Uri uri);
     }
 
-    GoogleMap map;
+    MapboxMap map;
 
     @Override
     public void onStart() {
@@ -198,13 +205,28 @@ public class F_map extends Fragment implements OnMapReadyCallback, GoogleMap.OnM
                     markerOptions.position(stops[i].loc);
                     markerOptions.title(stops[i].Name);
                     markerOptions.snippet(Integer.toString(stops[i].ID));
-                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.map_stop));
+                    markerOptions.icon(IconFactory.getInstance(getActivity()).fromResource(R.mipmap.map_stop));
                     map.addMarker(markerOptions);
                 }
             }
         });
 
-        SupportMapFragment mapFragment=(SupportMapFragment)getChildFragmentManager().findFragmentById(R.id.map_map);
+        final FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        // Build mapboxMap
+        MapboxMapOptions options = new MapboxMapOptions();
+        options.styleUrl(Style.MAPBOX_STREETS);
+        LatLng Ulaanbaatar= new LatLng(47.921230, 106.918556);
+        options.camera(new CameraPosition.Builder()
+                .target(Ulaanbaatar)
+                .zoom(14)
+                .build());
+
+        // Create map fragment
+        SupportMapFragment mapFragment = SupportMapFragment.newInstance(options);
+
+        // Add map fragment to parent container
+        transaction.add(R.id.map_map, mapFragment, "com.mapbox.map");
+        transaction.commit();
         mapFragment.getMapAsync(this);
     }
     private HashMap<Integer, Marker> visibleMarkers = new HashMap<Integer, Marker>();
@@ -216,15 +238,15 @@ public class F_map extends Fragment implements OnMapReadyCallback, GoogleMap.OnM
         for (int s=1;s<stops.length;s++) {
             D_stops stop=stops[s];
             LatLng item=stop.loc;
-            if(bounds.contains(new LatLng(item.latitude, item.longitude))) { //Is in boundary?
+            if(bounds.contains(new LatLng(item.getLatitude(), item.getLongitude()))) { //Is in boundary?
                 if(!visibleMarkers.containsKey(s)) { //Is on Display?
                     MarkerOptions markerOptions=new MarkerOptions();
                     markerOptions.position(stop.loc);
                     markerOptions.title(stop.Name);
                     markerOptions.snippet(Integer.toString(stop.ID));
-                    if(stop.ID==A) markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.map_a));
-                    else if(stop.ID==B) markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.map_b));
-                    else markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.map_stop));
+                    if(stop.ID==A) markerOptions.icon(IconFactory.getInstance(getActivity()).fromResource(R.mipmap.map_a));
+                    else if(stop.ID==B) markerOptions.icon(IconFactory.getInstance(getActivity()).fromResource(R.mipmap.map_b));
+                    else markerOptions.icon(IconFactory.getInstance(getActivity()).fromResource(R.mipmap.map_stop));
                     visibleMarkers.put(s, map.addMarker(markerOptions)); //add marker
                 }
             } else { //Not in boundary
@@ -234,5 +256,122 @@ public class F_map extends Fragment implements OnMapReadyCallback, GoogleMap.OnM
                 }
             }
         }
+    }
+
+    OfflineManager offlineManager;
+    MapView mapView;
+    ProgressBar progressBar;
+    public static final String JSON_CHARSET = "UTF-8";
+    public static final String JSON_FIELD_REGION_NAME = "FIELD_REGION_NAME";
+    private boolean isEndNotified;
+    public void offline_downloader() {
+        offlineManager = OfflineManager.getInstance(getActivity());
+
+        // Create a bounding box for the offline region
+        LatLngBounds latLngBounds = new LatLngBounds.Builder()
+                .include(new LatLng(47.75157, 106.55746)) // Northeast
+                .include(new LatLng(48.07164, 107.23617)) // Southwest
+                .build();
+
+        // Define the offline region
+        OfflineTilePyramidRegionDefinition definition = new OfflineTilePyramidRegionDefinition(
+                Style.MAPBOX_STREETS,
+                latLngBounds,
+                9,
+                14,
+                1);
+
+        // Set the metadata
+        byte[] metadata;
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put(JSON_FIELD_REGION_NAME, "Yosemite National Park");
+            String json = jsonObject.toString();
+            metadata = json.getBytes(JSON_CHARSET);
+        } catch (Exception exception) {
+            Log.e(TAG, "Failed to encode metadata: " + exception.getMessage());
+            metadata = null;
+        }
+
+        // Create the region asynchronously
+        offlineManager.createOfflineRegion(
+                definition,
+                metadata,
+                new OfflineManager.CreateOfflineRegionCallback() {
+                    @Override
+                    public void onCreate(OfflineRegion offlineRegion) {
+                        offlineRegion.setDownloadState(OfflineRegion.STATE_ACTIVE);
+
+                        // Display the download progress bar
+                        progressBar = (ProgressBar)getView().findViewById(R.id.map_progress_bar);
+                        startProgress();
+
+                        // Monitor the download progress using setObserver
+                        offlineRegion.setObserver(new OfflineRegion.OfflineRegionObserver() {
+                            @Override
+                            public void onStatusChanged(OfflineRegionStatus status) {
+
+                                // Calculate the download percentage and update the progress bar
+                                double percentage = status.getRequiredResourceCount() >= 0
+                                        ? (100.0 * status.getCompletedResourceCount() / status.getRequiredResourceCount()) :
+                                        0.0;
+
+                                if (status.isComplete()) {
+                                    // Download complete
+                                    endProgress("Region downloaded successfully.");
+                                } else if (status.isRequiredResourceCountPrecise()) {
+                                    // Switch to determinate state
+                                    setPercentage((int) Math.round(percentage));
+                                }
+                            }
+
+                            @Override
+                            public void onError(OfflineRegionError error) {
+                                // If an error occurs, print to logcat
+                                Log.e(TAG, "onError reason: " + error.getReason());
+                                Log.e(TAG, "onError message: " + error.getMessage());
+                            }
+
+                            @Override
+                            public void mapboxTileCountLimitExceeded(long limit) {
+                                // Notify if offline region exceeds maximum tile count
+                                Log.e(TAG, "Mapbox tile count limit exceeded: " + limit);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        Log.e(TAG, "Error: " + error);
+                    }
+                });
+    }
+
+    private void startProgress() {
+
+        // Start and show the progress bar
+        isEndNotified = false;
+        progressBar.setIndeterminate(true);
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    private void setPercentage(final int percentage) {
+        progressBar.setIndeterminate(false);
+        progressBar.setProgress(percentage);
+    }
+
+    private void endProgress(final String message) {
+        // Don't notify more than once
+        if (isEndNotified) {
+            return;
+        }
+
+        // Stop and hide the progress bar
+        isEndNotified = true;
+        progressBar.setIndeterminate(false);
+        progressBar.setVisibility(View.GONE);
+
+        // Show a toast
+        Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
     }
 }

@@ -1,7 +1,6 @@
 package com.example.bilguun.busroutev1;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 
 /**
  * Created by Bilguun on 1/19/2017.

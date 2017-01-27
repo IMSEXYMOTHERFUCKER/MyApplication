@@ -2,15 +2,26 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.example.bilguun.busroutev1.F_map"
     android:orientation="vertical">
 
-    <fragment
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0pt"
         android:layout_weight="81"
-        android:id="@+id/map_map"
-        class="com.google.android.gms.maps.SupportMapFragment"></fragment>>
+        android:id="@+id/map_map"/>
+
+    <ProgressBar
+        android:id="@+id/map_progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="25dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerInParent="true"
+        android:paddingLeft="25dp"
+        android:paddingRight="25dp"
+        android:visibility="gone"/>
 
     <LinearLayout
         android:layout_width="match_parent"

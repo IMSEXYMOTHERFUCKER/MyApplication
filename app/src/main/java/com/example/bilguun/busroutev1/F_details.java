@@ -1,50 +1,51 @@
 package com.example.bilguun.busroutev1;
 
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.JsonWriter;
-import android.view.Gravity;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 import android.widget.TabHost;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.maps.android.kml.KmlLayer;
+import com.mapbox.mapboxsdk.annotations.MarkerOptions;
+import com.mapbox.mapboxsdk.annotations.PolylineOptions;
+import com.mapbox.mapboxsdk.camera.CameraPosition;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
+import com.mapbox.mapboxsdk.constants.Style;
+import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.geometry.LatLngBounds;
+import com.mapbox.mapboxsdk.maps.MapView;
+import com.mapbox.mapboxsdk.maps.MapboxMap;
+import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
+import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+import com.mapbox.mapboxsdk.maps.SupportMapFragment;
+import com.mapbox.mapboxsdk.offline.OfflineManager;
+import com.mapbox.mapboxsdk.offline.OfflineRegion;
+import com.mapbox.mapboxsdk.offline.OfflineRegionError;
+import com.mapbox.mapboxsdk.offline.OfflineRegionStatus;
+import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
+
+import static com.mapbox.mapboxsdk.constants.MapboxConstants.TAG;
 
 
 /**
@@ -55,7 +56,7 @@ import java.util.Date;
  * Use the {@link F_details#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class F_details extends Fragment implements OnMapReadyCallback{
+public class F_details extends Fragment implements OnMapReadyCallback {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
@@ -125,15 +126,10 @@ public class F_details extends Fragment implements OnMapReadyCallback{
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        map=googleMap;
+    public void onMapReady(MapboxMap mapboxMap) {
+        //offline_downloader();
+        map=mapboxMap;
         LO_route_shower target=((MainActivity)getActivity()).details;
-        LatLng Ulaanbaatar= new LatLng(47.921230, 106.918556);
-        LatLngBounds UB_box=new LatLngBounds(new LatLng(47.7540,106.5624),new LatLng(48.1487,107.3945));
-        map.setLatLngBoundsForCameraTarget(UB_box);
-        //TODO Offline Map here
-        //GroundOverlayOptions UB=new GroundOverlayOptions().image().position();
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(Ulaanbaatar,12.0f));
         int[] colors={0xFF000000,0xFFc0c0c0};
         int i=0;
         for (int routeID:target.RouteIDs) {
@@ -175,7 +171,7 @@ public class F_details extends Fragment implements OnMapReadyCallback{
         void onFragmentInteraction(Uri uri);
     }
 
-    GoogleMap map;
+    MapboxMap map;
     @Override
     public void onStop() {
         super.onStop();
@@ -260,7 +256,139 @@ public class F_details extends Fragment implements OnMapReadyCallback{
             first_time=false;
         }
 
-        SupportMapFragment mapFragment=(SupportMapFragment)getChildFragmentManager().findFragmentById(R.id.details_map);
+        final FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        // Build mapboxMap
+        MapboxMapOptions options = new MapboxMapOptions();
+        options.styleUrl(Style.MAPBOX_STREETS);
+        LatLng Ulaanbaatar= new LatLng(47.921230, 106.918556);
+        options.camera(new CameraPosition.Builder()
+                .target(Ulaanbaatar)
+                .zoom(12)
+                .build());
+
+        // Create map fragment
+        SupportMapFragment mapFragment = SupportMapFragment.newInstance(options);
+
+        // Add map fragment to parent container
+        transaction.add(R.id.details_map, mapFragment, "com.mapbox.map");
+        transaction.commit();
         mapFragment.getMapAsync(this);
     }
+    OfflineManager offlineManager;
+    MapView mapView;
+    ProgressBar progressBar;
+    public static final String JSON_CHARSET = "UTF-8";
+    public static final String JSON_FIELD_REGION_NAME = "FIELD_REGION_NAME";
+    private boolean isEndNotified;
+    public void offline_downloader() {
+        offlineManager = OfflineManager.getInstance(getActivity());
+
+        // Create a bounding box for the offline region
+        LatLngBounds latLngBounds = new LatLngBounds.Builder()
+                .include(new LatLng(47.75157, 106.55746)) // Northeast
+                .include(new LatLng(48.07164, 107.23617)) // Southwest
+                .build();
+
+        // Define the offline region
+        OfflineTilePyramidRegionDefinition definition = new OfflineTilePyramidRegionDefinition(
+                Style.MAPBOX_STREETS,
+                latLngBounds,
+                9,
+                14,
+                1);
+
+        // Set the metadata
+        byte[] metadata;
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put(JSON_FIELD_REGION_NAME, "Yosemite National Park");
+            String json = jsonObject.toString();
+            metadata = json.getBytes(JSON_CHARSET);
+        } catch (Exception exception) {
+            Log.e(TAG, "Failed to encode metadata: " + exception.getMessage());
+            metadata = null;
+        }
+
+        // Create the region asynchronously
+        offlineManager.createOfflineRegion(
+                definition,
+                metadata,
+                new OfflineManager.CreateOfflineRegionCallback() {
+                    @Override
+                    public void onCreate(OfflineRegion offlineRegion) {
+                        offlineRegion.setDownloadState(OfflineRegion.STATE_ACTIVE);
+
+                        // Display the download progress bar
+                        progressBar = (ProgressBar)getView().findViewById(R.id.detail_progress_bar);
+                        startProgress();
+
+                        // Monitor the download progress using setObserver
+                        offlineRegion.setObserver(new OfflineRegion.OfflineRegionObserver() {
+                            @Override
+                            public void onStatusChanged(OfflineRegionStatus status) {
+
+                                // Calculate the download percentage and update the progress bar
+                                double percentage = status.getRequiredResourceCount() >= 0
+                                        ? (100.0 * status.getCompletedResourceCount() / status.getRequiredResourceCount()) :
+                                        0.0;
+
+                                if (status.isComplete()) {
+                                    // Download complete
+                                    endProgress("Region downloaded successfully.");
+                                } else if (status.isRequiredResourceCountPrecise()) {
+                                    // Switch to determinate state
+                                    setPercentage((int) Math.round(percentage));
+                                }
+                            }
+
+                            @Override
+                            public void onError(OfflineRegionError error) {
+                                // If an error occurs, print to logcat
+                                Log.e(TAG, "onError reason: " + error.getReason());
+                                Log.e(TAG, "onError message: " + error.getMessage());
+                            }
+
+                            @Override
+                            public void mapboxTileCountLimitExceeded(long limit) {
+                                // Notify if offline region exceeds maximum tile count
+                                Log.e(TAG, "Mapbox tile count limit exceeded: " + limit);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        Log.e(TAG, "Error: " + error);
+                    }
+                });
+    }
+
+    private void startProgress() {
+
+        // Start and show the progress bar
+        isEndNotified = false;
+        progressBar.setIndeterminate(true);
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    private void setPercentage(final int percentage) {
+        progressBar.setIndeterminate(false);
+        progressBar.setProgress(percentage);
+    }
+
+    private void endProgress(final String message) {
+        // Don't notify more than once
+        if (isEndNotified) {
+            return;
+        }
+
+        // Stop and hide the progress bar
+        isEndNotified = true;
+        progressBar.setIndeterminate(false);
+        progressBar.setVisibility(View.GONE);
+
+        // Show a toast
+        Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+    }
 }
+

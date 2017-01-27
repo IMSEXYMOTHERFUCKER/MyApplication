@@ -5,31 +5,24 @@ import android.content.res.AssetManager;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
-import android.inputmethodservice.KeyboardView;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.wearable.Asset;
+import com.mapbox.mapboxsdk.MapboxAccountManager;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
@@ -54,7 +47,7 @@ public class MainActivity extends FragmentActivity implements BlankFragment.OnFr
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        MapboxAccountManager.start(this, getString(R.string.access_token));
         ImageView home=(ImageView)findViewById(R.id.Home_Button);
         ImageView map=(ImageView)findViewById(R.id.Map_Button);
         ImageView log=(ImageView)findViewById(R.id.Log_Button);
@@ -190,16 +183,14 @@ public class MainActivity extends FragmentActivity implements BlankFragment.OnFr
                 break;
             case "Stop_Selector":
                 fr=new F_stop_selector();
-                fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                 break;
             case "Route_Shower":
                 fr=new F_route_shower();
-                fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                 break;
             case "Details":
                 fr=new F_details();
-                fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                 break;
+            //TODO popup animation
         }
         fragmentTransaction.replace(R.id.Fragment_Window,fr);
         fragmentTransaction.addToBackStack(null);

@@ -1,8 +1,6 @@
 package com.example.bilguun.busroutev1;
 
-import com.google.android.gms.maps.model.LatLng;
-
-import java.util.Vector;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 
 /**
  * Created by Bilguun on 1/19/2017.
