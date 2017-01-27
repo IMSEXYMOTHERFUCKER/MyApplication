@@ -127,7 +127,6 @@ public class F_details extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onMapReady(MapboxMap mapboxMap) {
-        //offline_downloader();
         map=mapboxMap;
         LO_route_shower target=((MainActivity)getActivity()).details;
         int[] colors={0xFF000000,0xFFc0c0c0};
@@ -273,119 +272,6 @@ public class F_details extends Fragment implements OnMapReadyCallback {
         transaction.add(R.id.details_map, mapFragment, "com.mapbox.map");
         transaction.commit();
         mapFragment.getMapAsync(this);
-    }
-    OfflineManager offlineManager;
-    MapView mapView;
-    TextView p_view;
-    public static final String JSON_CHARSET = "UTF-8";
-    public static final String JSON_FIELD_REGION_NAME = "FIELD_REGION_NAME";
-    private boolean isEndNotified;
-    public void offline_downloader() {
-        offlineManager = OfflineManager.getInstance(getActivity());
-
-        // Create a bounding box for the offline region
-        LatLngBounds latLngBounds = new LatLngBounds.Builder()
-                .include(new LatLng(47.75157, 106.55746)) // Northeast
-                .include(new LatLng(48.07164, 107.23617)) // Southwest
-                .build();
-
-        // Define the offline region
-        OfflineTilePyramidRegionDefinition definition = new OfflineTilePyramidRegionDefinition(
-                Style.MAPBOX_STREETS,
-                latLngBounds,
-                9,
-                14,
-                1);
-
-        // Set the metadata
-        byte[] metadata;
-        try {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put(JSON_FIELD_REGION_NAME, "Yosemite National Park");
-            String json = jsonObject.toString();
-            metadata = json.getBytes(JSON_CHARSET);
-        } catch (Exception exception) {
-            Log.e(TAG, "Failed to encode metadata: " + exception.getMessage());
-            metadata = null;
-        }
-
-        // Create the region asynchronously
-        offlineManager.createOfflineRegion(
-                definition,
-                metadata,
-                new OfflineManager.CreateOfflineRegionCallback() {
-                    @Override
-                    public void onCreate(OfflineRegion offlineRegion) {
-                        offlineRegion.setDownloadState(OfflineRegion.STATE_ACTIVE);
-
-                        // Display the download progress bar
-                        p_view = (TextView) getView().findViewById(R.id.detail_percentage);
-                        startProgress();
-
-                        // Monitor the download progress using setObserver
-                        offlineRegion.setObserver(new OfflineRegion.OfflineRegionObserver() {
-                            @Override
-                            public void onStatusChanged(OfflineRegionStatus status) {
-
-                                // Calculate the download percentage and update the progress bar
-                                double percentage = status.getRequiredResourceCount() >= 0
-                                        ? (100.0 * status.getCompletedResourceCount() / status.getRequiredResourceCount()) :
-                                        0.0;
-
-                                if (status.isComplete()) {
-                                    // Download complete
-                                    endProgress("Region downloaded successfully.");
-                                } else if (status.isRequiredResourceCountPrecise()) {
-                                    // Switch to determinate state
-                                    setPercentage((int) Math.round(percentage));
-                                }
-                            }
-
-                            @Override
-                            public void onError(OfflineRegionError error) {
-                                // If an error occurs, print to logcat
-                                Log.e(TAG, "onError reason: " + error.getReason());
-                                Log.e(TAG, "onError message: " + error.getMessage());
-                            }
-
-                            @Override
-                            public void mapboxTileCountLimitExceeded(long limit) {
-                                // Notify if offline region exceeds maximum tile count
-                                Log.e(TAG, "Mapbox tile count limit exceeded: " + limit);
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onError(String error) {
-                        Log.e(TAG, "Error: " + error);
-                    }
-                });
-    }
-
-    private void startProgress() {
-        // Start and show the progress bar
-        isEndNotified = false;
-        p_view.setText("Газрын зургыг татаж байна:");
-        p_view.setVisibility(View.VISIBLE);
-    }
-
-    private void setPercentage(final int percentage) {
-        p_view.setText("Газрын зургыг татаж байна: "+Integer.toString(percentage));
-    }
-
-    private void endProgress(final String message) {
-        // Don't notify more than once
-        if (isEndNotified) {
-            return;
-        }
-
-        // Stop and hide the progress bar
-        isEndNotified = true;
-        p_view.setVisibility(View.GONE);
-
-        // Show a toast
-        Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
     }
 }
 
