@@ -1,0 +1,54 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.bilguun.busroutev1.F_route_shower"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="10"
+        android:orientation="horizontal">
+
+        <TextView
+            android:gravity="center"
+            android:id="@+id/shower_routeID"
+            android:text="Чиглэл"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:gravity="center"
+            android:id="@+id/shower_duration"
+            android:text="Явах хугацаа"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:gravity="center"
+            android:id="@+id/shower_ctime"
+            android:text="Автобус ирэх хугацаа"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:gravity="center"
+            android:id="@+id/shower_ntake"
+            android:text="Дамжин суулт"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/shower_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="90"></ListView>
+
+</LinearLayout>

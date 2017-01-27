@@ -1,0 +1,33 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.bilguun.busroutev1.F_stop_selector"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="30pt"
+        android:orientation="horizontal">
+        <EditText
+            android:id="@+id/selector_keyboard"
+            android:hint="Буудлын нэрээ оруулна уу..."
+            android:layout_width="0pt"
+            android:layout_height="20pt"
+            android:layout_weight="90"/>
+        <Button
+            android:id="@+id/selector_clear"
+            android:text="Арилгах"
+            android:textSize="5pt"
+            android:layout_width="20pt"
+            android:layout_height="match_parent"
+            android:layout_weight="10"/>
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/selector_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"></ListView>
+
+</LinearLayout>

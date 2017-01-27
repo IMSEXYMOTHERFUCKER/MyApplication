@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:gravity="center"
+        android:id="@+id/lo_r_name"
+        android:layout_width="0dp"
+        android:layout_height="30pt"
+        android:layout_weight="1"/>
+    <TextView
+        android:gravity="center"
+        android:id="@+id/lo_r_duration"
+        android:layout_width="0dp"
+        android:layout_height="30pt"
+        android:layout_weight="1"/>
+    <TextView
+        android:gravity="center"
+        android:id="@+id/lo_r_ctime"
+        android:layout_width="0dp"
+        android:layout_height="30pt"
+        android:layout_weight="1"/>
+    <TextView
+        android:gravity="center"
+        android:id="@+id/lo_r_ntake"
+        android:layout_width="0dp"
+        android:layout_height="30pt"
+        android:layout_weight="1"/>
+
+</LinearLayout>

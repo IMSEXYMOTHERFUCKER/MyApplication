@@ -1,0 +1,46 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.bilguun.busroutev1.F_home"
+    android:orientation="vertical">
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0pt"
+        android:layout_weight="1"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0pt"
+        android:layout_weight="3"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/home_Astop"
+            android:text="Суух буудал"
+            android:layout_width="match_parent"
+            android:layout_height="0pt"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/home_Bstop"
+            android:text="Буух буудал"
+            android:layout_width="match_parent"
+            android:layout_height="0pt"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/home_GO"
+            android:text="Хайх"
+            android:layout_width="match_parent"
+            android:layout_height="0pt"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0pt"
+        android:layout_weight="1"/>
+</LinearLayout>

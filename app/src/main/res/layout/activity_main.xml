@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.bilguun.busroutev1.MainActivity"
+    android:orientation="vertical"
+    android:weightSum="100">
+
+    <fragment
+        android:name="com.example.bilguun.busroutev1.BlankFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0pt"
+        android:id="@+id/Fragment_Window"
+        android:layout_weight="90"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0pt"
+        android:orientation="horizontal"
+        android:layout_weight="10">
+        <ImageView
+            android:src="@mipmap/main_map"
+            android:onClick="main_buttons"
+            android:id="@+id/Map_Button"
+            android:layout_width="58pt"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+
+        <ImageView
+            android:src="@mipmap/main_home"
+            android:onClick="main_buttons"
+            android:id="@+id/Home_Button"
+            android:layout_width="58pt"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+
+        <ImageView
+            android:src="@mipmap/main_history"
+            android:onClick="main_buttons"
+            android:id="@+id/Log_Button"
+            android:layout_width="58pt"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+    </LinearLayout>
+</LinearLayout>

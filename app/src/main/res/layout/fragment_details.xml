@@ -1,0 +1,154 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.bilguun.busroutev1.F_details"
+    android:orientation="vertical">
+
+    <fragment
+        android:id="@+id/details_map"
+        android:layout_width="match_parent"
+        android:layout_height="0pt"
+        android:layout_weight="50"
+        class="com.google.android.gms.maps.SupportMapFragment"></fragment>
+    
+    <TabHost
+        android:id="@+id/details_tab_host"
+        android:layout_width="match_parent"
+        android:layout_height="0pt"
+        android:layout_weight="50">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            
+            <TabWidget
+                android:id="@android:id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="0pt"
+                android:layout_weight="1"></TabWidget>
+
+            <FrameLayout
+                android:id="@android:id/tabcontent"
+                android:layout_width="match_parent"
+                android:layout_height="0pt"
+                android:layout_weight="5">
+
+                <LinearLayout
+                    android:id="@+id/details_tab1"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <TextView
+                        android:paddingLeft="8pt"
+                        android:gravity="center_vertical"
+                        android:id="@+id/pop_detail_name1"
+                        android:layout_width="match_parent"
+                        android:layout_height="0pt"
+                        android:layout_weight="1"/>
+                    <TextView
+                        android:paddingLeft="8pt"
+                        android:gravity="center_vertical"
+                        android:id="@+id/pop_detail_A1"
+                        android:layout_width="match_parent"
+                        android:layout_height="0pt"
+                        android:layout_weight="1"/>
+                    <TextView
+                        android:paddingLeft="8pt"
+                        android:gravity="center_vertical"
+                        android:id="@+id/pop_detail_B1"
+                        android:layout_width="match_parent"
+                        android:layout_height="0pt"
+                        android:layout_weight="1"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/details_tab2"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <TextView
+                        android:paddingLeft="8pt"
+                        android:gravity="center_vertical"
+                        android:id="@+id/pop_detail_name2"
+                        android:layout_width="match_parent"
+                        android:layout_height="0pt"
+                        android:layout_weight="1"/>
+                    <TextView
+                        android:paddingLeft="8pt"
+                        android:gravity="center_vertical"
+                        android:id="@+id/pop_detail_A2"
+                        android:layout_width="match_parent"
+                        android:layout_height="0pt"
+                        android:layout_weight="1"/>
+                    <TextView
+                        android:paddingLeft="8pt"
+                        android:gravity="center_vertical"
+                        android:id="@+id/pop_detail_B2"
+                        android:layout_width="match_parent"
+                        android:layout_height="0pt"
+                        android:layout_weight="1"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/details_tab3"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <TextView
+                        android:paddingLeft="8pt"
+                        android:gravity="center_vertical"
+                        android:id="@+id/pop_detail_name3"
+                        android:layout_width="match_parent"
+                        android:layout_height="0pt"
+                        android:layout_weight="1"/>
+                    <TextView
+                        android:paddingLeft="8pt"
+                        android:gravity="center_vertical"
+                        android:id="@+id/pop_detail_A3"
+                        android:layout_width="match_parent"
+                        android:layout_height="0pt"
+                        android:layout_weight="1"/>
+                    <TextView
+                        android:paddingLeft="8pt"
+                        android:gravity="center_vertical"
+                        android:id="@+id/pop_detail_B3"
+                        android:layout_width="match_parent"
+                        android:layout_height="0pt"
+                        android:layout_weight="1"/>
+                </LinearLayout>
+
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0pt"
+                android:layout_weight="1.5"
+                android:orientation="horizontal">
+                <TextView
+                    android:gravity="center"
+                    android:id="@+id/detail_duration"
+                    android:layout_width="0pt"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"/>
+                <TextView
+                    android:gravity="center"
+                    android:id="@+id/detail_ctime"
+                    android:layout_width="0pt"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="0pt"
+                android:layout_weight="1.5"
+                android:text="Хадгалах"
+                android:id="@+id/detail_save"/>
+
+        </LinearLayout>
+
+    </TabHost>
+</LinearLayout>
