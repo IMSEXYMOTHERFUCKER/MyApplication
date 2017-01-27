@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mapbox.mapboxsdk.annotations.IconFactory;
@@ -260,7 +261,7 @@ public class F_map extends Fragment implements OnMapReadyCallback, MapboxMap.OnM
 
     OfflineManager offlineManager;
     MapView mapView;
-    ProgressBar progressBar;
+    TextView p_view;
     public static final String JSON_CHARSET = "UTF-8";
     public static final String JSON_FIELD_REGION_NAME = "FIELD_REGION_NAME";
     private boolean isEndNotified;
@@ -303,7 +304,7 @@ public class F_map extends Fragment implements OnMapReadyCallback, MapboxMap.OnM
                         offlineRegion.setDownloadState(OfflineRegion.STATE_ACTIVE);
 
                         // Display the download progress bar
-                        progressBar = (ProgressBar)getView().findViewById(R.id.map_progress_bar);
+                        p_view = (TextView)getView().findViewById(R.id.map_percentage);
                         startProgress();
 
                         // Monitor the download progress using setObserver
@@ -351,13 +352,11 @@ public class F_map extends Fragment implements OnMapReadyCallback, MapboxMap.OnM
 
         // Start and show the progress bar
         isEndNotified = false;
-        progressBar.setIndeterminate(true);
-        progressBar.setVisibility(View.VISIBLE);
+        p_view.setVisibility(View.VISIBLE);
     }
 
     private void setPercentage(final int percentage) {
-        progressBar.setIndeterminate(false);
-        progressBar.setProgress(percentage);
+        p_view.setText("Газрын зураг татаж байна: "+Integer.toString(percentage)+"%");
     }
 
     private void endProgress(final String message) {
@@ -368,8 +367,7 @@ public class F_map extends Fragment implements OnMapReadyCallback, MapboxMap.OnM
 
         // Stop and hide the progress bar
         isEndNotified = true;
-        progressBar.setIndeterminate(false);
-        progressBar.setVisibility(View.GONE);
+        p_view.setVisibility(View.GONE);
 
         // Show a toast
         Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();

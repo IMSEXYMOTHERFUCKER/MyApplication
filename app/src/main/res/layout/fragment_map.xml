@@ -12,8 +12,8 @@
         android:layout_weight="81"
         android:id="@+id/map_map"/>
 
-    <ProgressBar
-        android:id="@+id/map_progress_bar"
+    <TextView
+        android:id="@+id/map_percentage"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="25dp"
